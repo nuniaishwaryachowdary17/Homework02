@@ -1,0 +1,73 @@
+/*
+  Name:     Aishwarya Nuni (ID 002941257)
+  Section:  Monday and Wednesday
+  Assignment: Homework 2 - My Movie Review (print stylesheet)
+  Contents: flattens the page for paper: white background, no fixed badges, no split reviews,
+            Grid frame kept at two columns, link URLs printed, animation switched off.
+*/
+
+*, *::before, *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+body { background: white; }
+
+h1 { margin: 10px 0; }
+
+/* The 60px screen margin pushed the counter alone onto page 2 */
+#content {
+  width: auto;
+  margin-bottom: 0;
+  overflow: visible;
+  border-color: black;
+}
+
+/* "(88 reviews total)" was white on white with backgrounds off */
+#rating {
+  color: black;
+  background: none;
+}
+
+#validators { display: none; }
+
+.review { break-inside: avoid; }
+
+/*
+  Keep the 2-column Grid on paper even when the printable width is under 700px
+  (the 700px screen breakpoint also matches in print and would stack the sidebar).
+*/
+@supports (display: grid) {
+  #content {
+    grid-template-columns: 1fr 165px;
+    grid-template-areas:
+      "rating  overview"
+      "reviews overview"
+      "count   count";
+  }
+}
+
+/* Paper can be under 700px wide: keep the two review columns side by side */
+#reviews { flex-direction: row; }
+#reviews .column { width: 47%; }
+
+#overview img {
+  width: 165px;
+  max-width: 100%;
+}
+
+#overview dl {
+  padding: 6px;
+  font-size: 7pt;                 /* tighter sidebar so it fits one page at 0.75in margins */
+}
+
+#overview dt {
+  margin-top: 0.5em;
+  break-after: avoid;             /* a heading never strands from its value */
+}
+
+#overview dd { overflow-wrap: anywhere; }   /* printed URL is wider than the print sidebar */
+
+#overview a::after { content: " (" attr(href) ")"; }
+
+#count { break-inside: avoid; }   /* the counter bar never splits */

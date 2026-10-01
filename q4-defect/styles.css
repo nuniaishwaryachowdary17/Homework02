@@ -1,0 +1,315 @@
+/*
+  Name:     Aishwarya Nuni (ID 002941257)
+  Section:  Monday and Wednesday
+  Assignment: Homework 2 - My Movie Review
+  Contents: base -> banner/heading -> Grid frame -> rating -> reviews (Flex) -> overview
+            -> counter -> validators -> focus states -> 700px and 480px breakpoints.
+
+  Layout decisions:
+  - #content is a named-area Grid because the four regions (rating, reviews, sidebar, counter)
+    have a fixed 2D relationship. The browser default (stacked blocks) is the fallback, and
+    Grid is applied inside @supports.
+  - .critic is Flexbox because it is a one-dimensional row (icon + text) repeated 8 times.
+    #reviews is a Flex row holding the two .column blocks; at 700px and below it becomes a
+    column so the review columns stack. At 480px the rating and heading shrink.
+  - The validator badges are the only fixed-position element, as the brief requires.
+*/
+
+body {
+  margin: 0;
+  padding: 0;
+  background: url("images/background.png");
+  font: 8pt Verdana, Tahoma, sans-serif;
+}
+
+img { max-width: 100%; }
+
+/* Banner and heading */
+#banner {
+  display: flex;
+  overflow: hidden;
+  height: 50px;
+  background: url("images/bannerbackground.png") repeat-x;
+}
+
+#banner img { flex: none; max-width: none; height: 50px; margin: 0 auto; }
+
+h1 {
+  margin: 20px 0;
+  font: bold 24pt Tahoma, Verdana, sans-serif;
+  text-align: center;
+}
+
+/* Content frame */
+#content {
+  width: min(800px, calc(100% - 28px));
+  margin: 0 auto 60px;
+  border: 4px solid gray;
+  overflow-x: clip;
+}
+
+@supports (display: grid) {
+  #content {
+    display: grid;
+    grid-template-columns: 1fr 250px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "rating  overview"
+      "reviews overview"
+      "count   count";
+  }
+}
+
+/* Rating header */
+#rating {
+  grid-area: rating;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: url("images/rottenbackground.png") repeat-x;
+  color: white;
+}
+
+#rating .percent {
+  color: red;
+  font: bold 48pt Tahoma, Verdana, sans-serif;
+}
+
+/* Reviews */
+#reviews {
+  grid-area: reviews;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 2%;
+}
+
+#reviews .column { width: 47%; }
+
+.review { margin-bottom: 25px; }
+
+.quote {
+  display: flow-root;
+  margin: 0;
+  padding: 8px;
+  background: #E1D697;
+  border: 2px solid gray;
+  font-weight: bold;
+  height: 2.5em;       /* DEFECT (intentional): sized from the short quotes */
+  overflow: hidden;    /* DEFECT (intentional): hides whatever does not fit */
+}
+
+.quote img {
+  float: left;
+  margin-right: 5px;
+}
+
+.critic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0 0;
+}
+
+/* General overview sidebar */
+#overview {
+  grid-area: overview;
+  background: #A2B964;
+  font: 8pt Arial, sans-serif;
+}
+
+#overview img { display: block; width: 250px; }
+
+#overview dl { margin: 0; padding: 10px; }
+
+#overview dt {
+  margin-top: 1em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+#overview dt:first-child { margin-top: 0; }
+
+/* Counter bar */
+#count {
+  grid-area: count;
+  margin: 0;
+  padding: 5px;
+  background: #A2B964;
+  text-align: center;
+}
+
+/* Validator badges */
+#validators {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#validators img { display: block; }
+
+/* Keyboard focus */
+a:focus-visible {
+  outline: 3px solid #1a4fd6;
+  outline-offset: 2px;
+}
+
+/* 700px and below: collapse the Grid to one column and stack the two review columns */
+@media (max-width: 700px) {
+  #content {
+    width: auto;
+    margin: 0 10px 60px;
+  }
+
+  @supports (display: grid) {
+    #content {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "rating"
+        "reviews"
+        "overview"
+        "count";
+    }
+  }
+
+  #overview img { width: 100%; max-width: 250px; }
+
+  #reviews { flex-direction: column; }
+  #reviews .column { width: 100%; }
+}
+
+/* Phone: smaller rating and heading */
+@media (max-width: 480px) {
+  #rating { flex-wrap: wrap; }
+  #rating .percent { font-size: 36pt; }
+  #rating img { width: 80px; height: auto; }
+  h1 { font-size: 18pt; }
+}
+
+/*
+  Animation (CSS only, no HTML changes, no absolute positioning)
+  - Every entrance uses "backwards" fill, so the resting state is the reference layout.
+  - Only transform, opacity, filter and background-position are animated.
+  - Story: film strip runs in the banner, logo drops in, the rotten splat lands, 32% slams
+    in, a light sheen crosses the rating bar, reviews fly in from their own side, then the
+    sidebar and counter close the sequence (about 2.6s total).
+*/
+@keyframes drop {
+  from { opacity: 0; transform: translateY(-50px); }
+  60%  { transform: translateY(6px); }
+}
+@keyframes rise   { from { opacity: 0; transform: translateY(24px); } }
+@keyframes fade   { from { opacity: 0; } }
+@keyframes from-l { from { opacity: 0; transform: translateX(-60px) rotate(-2deg); } }
+@keyframes from-r { from { opacity: 0; transform: translateX(60px) rotate(2deg); } }
+@keyframes reveal { from { opacity: 0; letter-spacing: 0.4em; filter: blur(8px); } }
+@keyframes splat  {
+  from { opacity: 0; transform: scale(2.4) rotate(-25deg); }
+  55%  { transform: scale(0.85, 1.1) rotate(4deg); }
+  75%  { transform: scale(1.1, 0.9); }
+}
+@keyframes slam {
+  from { opacity: 0; transform: scale(3) translateY(-30px); }
+  60%  { transform: scale(0.94); }
+  75%  { transform: scale(1.04) translateX(-4px); }
+  88%  { transform: translateX(3px); }
+}
+@keyframes sheen  { to { background-position: 760px 0, 0 0; } }
+@keyframes strip  { to { background-position: -200px 0; } }
+@keyframes wobble {
+  25% { transform: rotate(-18deg) scale(1.25); }
+  60% { transform: rotate(14deg) scale(1.25); }
+}
+@keyframes beat {
+  40% { transform: scale(1.18); }
+  60% { transform: scale(1); }
+  80% { transform: scale(1.1); }
+}
+@keyframes breathe { 50% { filter: brightness(1.1) saturate(1.12); } }
+@keyframes float  { 50% { transform: translateY(-5px); } }
+
+/* Banner: film strip drifts forever, logo drops in */
+#banner { animation: strip 40s linear infinite; }
+#banner img { animation: drop 0.8s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+
+h1 { animation: reveal 0.9s ease-out 0.2s backwards; }
+
+#content { animation: fade 0.6s ease-out 0.3s backwards; }
+
+/* Rating: splat lands, 32% slams in, one sheen sweep across the bar */
+#rating {
+  background:
+    linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.28) 50%, transparent)
+      -160px 0 / 160px 100% no-repeat,
+    url("images/rottenbackground.png") repeat-x;
+  animation: sheen 1.1s ease-in-out 1.5s backwards;
+}
+
+#rating > img { animation: splat 0.7s ease-out 0.5s backwards; }
+#rating .percent { animation: slam 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.8s backwards; }
+#rating .total { animation: fade 0.6s ease-out 1.5s backwards; }
+
+/* Reviews: left column flies in from the left, right column from the right */
+.review {
+  animation: from-l 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(1.1s + var(--d, 0s));
+  transition: transform 0.25s ease;
+}
+
+.column + .column .review {
+  animation-name: from-r;
+  animation-delay: calc(1.2s + var(--d, 0s));
+}
+
+.review:nth-child(2) { --d: 0.2s; }
+.review:nth-child(3) { --d: 0.4s; }
+.review:nth-child(4) { --d: 0.6s; }
+
+.quote { transition: box-shadow 0.25s ease, border-color 0.25s ease; }
+
+.review:hover { transform: perspective(600px) translateY(-4px) rotateX(4deg); }
+
+.review:hover .quote {
+  border-color: #6b6b6b;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.review:hover .quote img { animation: wobble 0.5s ease-in-out; }
+
+.quote img[alt="Fresh"] { animation: beat 2.4s ease-in-out 3s infinite; }
+
+.critic img { transition: transform 0.25s ease; }
+
+.review:hover .critic img { transform: scale(1.15); }
+
+/* Sidebar and counter */
+#overview img {
+  animation: rise 0.7s ease-out 1.6s backwards, breathe 6s ease-in-out 2.6s infinite;
+}
+
+#overview dl { animation: fade 0.6s ease-out 1.9s backwards; }
+
+/* Detail rows slide in three at a time */
+#overview dt { animation: from-l 0.5s ease-out 2s backwards; }
+#overview dt:nth-of-type(n+4) { animation-delay: 2.15s; }
+#overview dt:nth-of-type(n+7) { animation-delay: 2.3s; }
+
+#count { animation: rise 0.5s ease-out 2.6s backwards; }
+
+/* Validator badges: idle bob, lift on hover */
+#validators img { animation: float 3s ease-in-out infinite; transition: transform 0.2s ease; }
+
+#validators a:last-child img { animation-delay: 0.6s; }
+
+#validators a:hover img { transform: scale(1.12); }
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
